@@ -7,24 +7,49 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+  <LinearLayout
+      android:id="@+id/llString"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      app:layout_constraintBottom_toTopOf="@+id/btnImage"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent">
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/etString"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:autofillHints="输入要粘贴的字符串" />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnTest"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toTopOf="@+id/btnTestCommand"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="字符串复制" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnTestCommand"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="测试command"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/btnTest"
-        app:layout_constraintStart_toStartOf="@+id/btnTest"
-        app:layout_constraintTop_toBottomOf="@id/btnTest" />
+  </LinearLayout>
+
+  <com.google.android.material.button.MaterialButton
+      android:id="@+id/btnImage"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="图片"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/llString" />
+
+  <androidx.appcompat.widget.AppCompatTextView
+      android:id="@+id/tvStatus"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="status:"
+      android:textColor="@color/black"
+      android:textSize="20sp"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
