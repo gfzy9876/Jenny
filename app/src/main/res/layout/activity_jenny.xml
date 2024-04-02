@@ -5,15 +5,33 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".JennyActivity">
+
+  <TextView
+      android:id="@+id/tvCurrentHost"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
+
+  <TextView
+      android:id="@+id/tvCurrentPort"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/tvCurrentHost" />
 
   <LinearLayout
       android:id="@+id/llString"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
+      android:layout_height="0dp"
+      android:gravity="center_vertical"
       android:orientation="horizontal"
       app:layout_constraintBottom_toTopOf="@+id/btnImage"
       app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHeight_percent="0.3"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent">
 
@@ -25,10 +43,11 @@
         android:autofillHints="输入要粘贴的字符串" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnTest"
+        android:id="@+id/btnString"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="字符串复制" />
+        android:enabled="false"
+        android:text="发送字符串" />
 
   </LinearLayout>
 
@@ -36,7 +55,7 @@
       android:id="@+id/btnImage"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="图片"
+      android:text="发送图片"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
