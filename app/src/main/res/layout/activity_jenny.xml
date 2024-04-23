@@ -5,13 +5,13 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="10dp"
     tools:context=".JennyActivity">
 
   <TextView
       android:id="@+id/tvCurrentHost"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent" />
 
@@ -19,21 +19,20 @@
       android:id="@+id/tvCurrentPort"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@id/tvCurrentHost" />
 
   <LinearLayout
       android:id="@+id/llString"
       android:layout_width="match_parent"
-      android:layout_height="0dp"
+      android:layout_height="wrap_content"
       android:gravity="center_vertical"
       android:orientation="horizontal"
+      android:paddingVertical="10dp"
       app:layout_constraintBottom_toTopOf="@+id/btnImage"
       app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintHeight_percent="0.3"
       app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent">
+      app:layout_constraintTop_toBottomOf="@+id/tvCurrentPort">
 
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/etString"
@@ -55,19 +54,38 @@
       android:id="@+id/btnImage"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="发送图片"
-      app:layout_constraintBottom_toBottomOf="parent"
+      android:layout_marginTop="5dp"
+      android:text="发送图片(socket)"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@id/llString" />
+
+  <com.google.android.material.button.MaterialButton
+      android:id="@+id/btnVideo"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="5dp"
+      android:text="发送视频(socket)"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/btnImage" />
+
+  <com.google.android.material.button.MaterialButton
+      android:id="@+id/btnFileADB"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="5dp"
+      android:text="发送文件(adb方式,推荐插线使用)"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/btnVideo" />
 
   <androidx.appcompat.widget.AppCompatTextView
       android:id="@+id/tvStatus"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:text="status:"
-      android:textColor="@color/black"
-      android:textSize="20sp"
+      android:textSize="15sp"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintStart_toStartOf="parent" />
 

@@ -2,7 +2,7 @@ package pers.zy.jenny.command
 
 import java.io.File
 
-class SendFileCommand(private val file: File) : ICommand {
+class SendFileADBCommand(private val file: File) : ICommand {
 
   override fun getCommandStr(): ByteArray {
     return "${CommandIdentify.SEND_FILE_ADB_PULL}".toByteArray() +

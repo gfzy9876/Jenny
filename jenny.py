@@ -40,14 +40,26 @@ def dispatch_command(command_bytes: bytes, content_bytes: bytes):
     if "IDENTIFY_STRING" == commandStr:
         active(str(content_bytes, "utf-8"))
     elif "IDENTIFY_SEND_FILE_ADB_PULL" == commandStr:
-        active(str(content_bytes, "utf-8"))
-    elif "IDENTIFY_SEND_FILE_BYTE" == commandStr:
-        active("获取文件 ing...")
+        commandStr = str(content_bytes, "utf-8")
+        if not os.path.exists("jennyGenerated"):
+            os.makedirs("jennyGenerated")
+        active(f"使用adb pull 方式获取文件 ${commandStr}")
+        subprocess.run(f"cd jennyGenerated && {commandStr}", shell=True)
+    elif "IDENTIFY_SEND_IMAGE_BYTE" == commandStr:
+        active("获取图片 ing...")
         file_name = f"jennyGenerated/{int(time.time())}.png"
         os.makedirs(os.path.dirname(file_name), exist_ok=True)
         with open(file_name, "wb") as f:
             f.write(content_bytes)
-        active(f"打开文件 {file_name}")
+        active(f"打开图片 {file_name}")
+        os.system(f"open {file_name}")
+    elif "IDENTIFY_SEND_VIDEO_BYTE" == commandStr:
+        active("获取视频 ing...")
+        file_name = f"jennyGenerated/{int(time.time())}.mp4"
+        os.makedirs(os.path.dirname(file_name), exist_ok=True)
+        with open(file_name, "wb") as f:
+            f.write(content_bytes)
+        active(f"打开视频 {file_name}")
         os.system(f"open {file_name}")
 
 
