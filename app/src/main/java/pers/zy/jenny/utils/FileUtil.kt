@@ -1,24 +1,32 @@
-package pers.zy.jenny
+package pers.zy.jenny.utils
 
 import android.content.ContentResolver
 import android.net.Uri
+import android.util.Log
+import pers.zy.jenny.MyApp
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import kotlin.math.min
 
 /**
  * @author: zy
  * @date: 2024/4/23
  */
-object FileUtils {
+object FileUtil {
+
+  private val EXTERNAL_FILES_DIR: File?
+    get() = MyApp.INSTANCE.getExternalFilesDir("GFZY")
+
+  init {
+    Log.d("GFZY", "clear")
+    EXTERNAL_FILES_DIR?.deleteRecursively()
+  }
 
   suspend fun saveUriToFile(
       uri: Uri,
       outputFile: File,
-      loading: (progress: Float) -> Unit,
-      success: (file: File) -> Unit
+      success: suspend (file: File) -> Unit
   ) {
     val contentResolver: ContentResolver = MyApp.INSTANCE.contentResolver
     val inputStream = contentResolver.openInputStream(uri)
@@ -28,10 +36,7 @@ object FileUtils {
         val bufferedInputStream = BufferedInputStream(input)
         val buffer = ByteArray(1024)
         var bytesRead: Int
-        while (bufferedInputStream.read(buffer).also {
-              bytesRead = it
-              loading(min(it * 1f / input.available(), 1f))
-            } != -1) {
+        while (bufferedInputStream.read(buffer).also { bytesRead = it } != -1) {
           output.write(buffer, 0, bytesRead)
         }
         output.flush()
@@ -40,7 +45,7 @@ object FileUtils {
     }
   }
 
-  suspend fun getMimeTypeFromUri(uri: Uri): String? {
+  fun getMimeTypeFromUri(uri: Uri): String? {
     val contentResolver: ContentResolver = MyApp.INSTANCE.contentResolver
     val type = contentResolver.getType(uri) ?: return ""
     return try {
@@ -62,7 +67,7 @@ object FileUtils {
   }
 
   fun createFile(name: String): File {
-    return File(MyApp.INSTANCE.getExternalFilesDir("GFZY"), name).also {
+    return File(EXTERNAL_FILES_DIR, name).also {
       if (it.parentFile != null && !it.parentFile!!.exists()) {
         it.parentFile!!.mkdirs()
       }

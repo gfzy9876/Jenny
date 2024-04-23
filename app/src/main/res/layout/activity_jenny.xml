@@ -75,18 +75,23 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_marginTop="5dp"
-      android:text="发送文件(adb方式,推荐插线使用)"
+      android:text="发送文件(adb方式,插线推荐优先使用)"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@id/btnVideo" />
 
-  <androidx.appcompat.widget.AppCompatTextView
-      android:id="@+id/tvStatus"
-      android:layout_width="wrap_content"
+  <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/rvLogs"
+      android:layout_width="0dp"
       android:layout_height="wrap_content"
-      android:text="status:"
-      android:textSize="15sp"
+      android:layout_marginTop="40dp"
+      app:layout_constrainedHeight="true"
       app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintStart_toStartOf="parent" />
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/btnFileADB"
+      app:layout_constraintVertical_bias="1"
+      tools:itemCount="200"
+      tools:listitem="@layout/item_log" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

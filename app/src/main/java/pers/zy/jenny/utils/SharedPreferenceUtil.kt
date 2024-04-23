@@ -1,8 +1,18 @@
-package pers.zy.jenny
+package pers.zy.jenny.utils
 
 import android.content.Context
+import pers.zy.jenny.JennyActivity
+import pers.zy.jenny.MyApp
 
-object SharedPreferenceUtils {
+object SharedPreferenceUtil {
+  val SP_HOST_NAME: String
+    get() = getString(MyApp.INSTANCE, JennyActivity.EXTRA_HOST_NAME, "")
+  val SP_PORT: Int
+    get() = getInt(MyApp.INSTANCE, JennyActivity.EXTRA_PORT, -1)
+
+  var hostName: String = ""
+  var port: Int = 0
+
   fun getString(context: Context, key: String, defValue: String = ""): String {
     val sp = context.getSharedPreferences("jenny", Context.MODE_PRIVATE)
     return sp.getString(key, defValue) ?: defValue

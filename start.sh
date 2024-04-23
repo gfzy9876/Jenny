@@ -22,4 +22,9 @@
 #     esac
 # done
 
+handle_error() {
+    python3 jenny.py ""
+}
+
+trap 'handle_error' ERR
 python jenny.py ""

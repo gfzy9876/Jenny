@@ -1,3 +1,7 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -33,6 +37,25 @@ android {
     }
     buildFeatures {
         viewBinding = true
+    }
+    applicationVariants.all {
+        variant ->
+            variant.outputs.all {
+                output ->
+                    if (outputFileName != null && outputFileName.endsWith('.apk')) {
+                        variant.assembleProvider.configure {
+                            it.doLast {
+                                File sourceApk = output.getOutputFile()
+                                File outPath = new File(project.getBuildDir(), "/outputs/apk/")
+                                if (!outPath.exists()) {
+                                    outPath.mkdirs()
+                                }
+                                File resultApk = new File(outPath, "Jenny.apk")
+                                Files.copy(Paths.get(sourceApk.getPath()), Paths.get(resultApk.getPath()), StandardCopyOption.REPLACE_EXISTING)
+                            }
+                        }
+                    }
+            }
     }
 }
 
