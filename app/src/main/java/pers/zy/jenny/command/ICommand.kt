@@ -1,8 +1,5 @@
 package pers.zy.jenny.command
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
 import okhttp3.logging.HttpLoggingInterceptor
@@ -34,16 +31,3 @@ val API = Retrofit.Builder()
     .client(client)
     .build()
     .create(IApi::class.java)
-
-fun CoroutineScope.startCommand(
-    command: ICommand,
-    updateTvStatus: (String) -> Unit
-) {
-  launch(Dispatchers.IO) {
-    try {
-      command.createSuspendFun()
-    } catch (e: Exception) {
-      updateTvStatus("error: $e")
-    }
-  }
-}

@@ -160,7 +160,6 @@ class JennyActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         }
       }
     }
-    startCommand(command, ::updateTvStatus)
   }
 
   private fun updateTvStatus(msg: String) {
