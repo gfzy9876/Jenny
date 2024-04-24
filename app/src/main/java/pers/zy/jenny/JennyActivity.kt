@@ -71,7 +71,7 @@ class JennyActivity : AppCompatActivity(), CoroutineScope by MainScope() {
       DeviceUtil.hideKeyboard(this@JennyActivity)
       binding.etString.clearFocus()
       binding.etString.text?.toString()?.takeIf { it.isNotBlank() }?.let { str ->
-        startCommand(StringCommand(str), ::updateTvStatus)
+        startCommand(StringCommand(str))
       }
       binding.etString.setText("")
     }
@@ -101,13 +101,23 @@ class JennyActivity : AppCompatActivity(), CoroutineScope by MainScope() {
   }
 
   private fun launchImageUri(uri: Uri) {
-    val bytes = contentResolver.openInputStream(uri)?.readBytes() ?: return
-    startCommand(SendFileByteCommand(bytes), ::updateTvStatus)
+    launch(Dispatchers.IO) {
+      contentResolver.openInputStream(uri)?.let { inputStream ->
+        FileUtil.saveUriToFile(inputStream, FileUtil.createFile("create_${System.currentTimeMillis()}${FileUtil.getMimeTypeFromUri(uri)}")) {
+          startCommand(SendFileCommand(it, CommandIdentify.SEND_IMAGE_BYTE))
+        }
+      }
+    }
   }
 
   private fun launchVideoUri(uri: Uri) {
-    val bytes = contentResolver.openInputStream(uri)?.readBytes() ?: return
-    startCommand(SendVideoByteCommand(bytes), ::updateTvStatus)
+    launch(Dispatchers.IO) {
+      contentResolver.openInputStream(uri)?.let { inputStream ->
+        FileUtil.saveUriToFile(inputStream, FileUtil.createFile("create_${System.currentTimeMillis()}${FileUtil.getMimeTypeFromUri(uri)}")) {
+          startCommand(SendFileCommand(it, CommandIdentify.SEND_VIDEO_BYTE))
+        }
+      }
+    }
   }
 
   private fun launchFileUri(uri: Uri) {
@@ -117,7 +127,7 @@ class JennyActivity : AppCompatActivity(), CoroutineScope by MainScope() {
           FileUtil.createFile("create_${System.currentTimeMillis()}${FileUtil.getMimeTypeFromUri(uri)}")
       ) {
         Log.d("GFZY", "okay ${it.absolutePath}")
-        startCommand(SendFileADBCommand(it), ::updateTvStatus)
+        startCommand(SendFileADBCommand(it))
       }
     }
   }
@@ -138,13 +148,23 @@ class JennyActivity : AppCompatActivity(), CoroutineScope by MainScope() {
   }
 
   private fun startCommand(command: ICommand) {
-    cancel()
-    clearLog()
+    launch(Dispatchers.Main) {
+      clearLog()
+      withContext(Dispatchers.IO) {
+        try {
+          updateTvStatus("上传中")
+          val result = command.createSuspendFun()
+          updateTvStatus("上传完成 $result")
+        } catch (e: Exception) {
+          updateTvStatus("error: $e")
+        }
+      }
+    }
     startCommand(command, ::updateTvStatus)
   }
 
-  private suspend fun updateTvStatus(msg: String) {
-    withContext(Dispatchers.Main) {
+  private fun updateTvStatus(msg: String) {
+    launch(Dispatchers.Main) {
       Log.d("GFZY", "updateTvStatus: ${msg}")
       logs.add(msg)
       logs.indexOf(msg).also {

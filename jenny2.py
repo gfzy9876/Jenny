@@ -1,10 +1,8 @@
-import json
 import os
+import socket
 import subprocess
 import sys
 import time
-
-from flask import Flask, app, jsonify, request
 
 SPLIT = b">>>\n<<<"
 
@@ -35,58 +33,50 @@ def active(msg):
     print(Colors.GREEN + msg + Colors.RESET)
 
 
-app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = 160 * 1024 * 1024
+# 根据command不同处理
+def dispatch_command(command_bytes: bytes, content_bytes: bytes):
+    commandStr = str(command_bytes, "utf-8")
+    info(f"command = {commandStr}\n")
+    if "IDENTIFY_STRING" == commandStr:
+        active(str(content_bytes, "utf-8"))
+    elif "IDENTIFY_SEND_FILE_ADB_PULL" == commandStr:
+        commandStr = str(content_bytes, "utf-8")
+        if not os.path.exists("jennyGenerated"):
+            os.makedirs("jennyGenerated")
+        commandStrArray = commandStr.split(" ")
+        adb_index = commandStrArray.index("adb")
+        commandStrArray.insert(adb_index + 1, "-s")
+        commandStrArray.insert(adb_index + 2, device_id)
+        commandStr = " ".join(commandStrArray)
+        active(f"使用adb pull 方式获取文件 {commandStr}")
+        subprocess.run(f"cd jennyGenerated && {commandStr}", shell=True)
+    elif "IDENTIFY_SEND_IMAGE_BYTE" == commandStr:
+        active("获取图片 ing...")
+        file_name = f"jennyGenerated/{int(time.time())}.png"
+        os.makedirs(os.path.dirname(file_name), exist_ok=True)
+        with open(file_name, "wb") as f:
+            f.write(content_bytes)
+        active(f"打开图片 {file_name}")
+        os.system(f"open {file_name}")
+    elif "IDENTIFY_SEND_VIDEO_BYTE" == commandStr:
+        active("获取视频 ing...")
+        file_name = f"jennyGenerated/{int(time.time())}.mp4"
+        os.makedirs(os.path.dirname(file_name), exist_ok=True)
+        with open(file_name, "wb") as f:
+            f.write(content_bytes)
+        active(f"打开视频 {file_name}")
+        os.system(f"open {file_name}")
 
 
-@app.route("/command_string", methods=["POST"])
-def handle_command_string():
-    info(f"command = IDENTIFY_STRING\n")
-    full_message = request.form.get("content")
-    active(full_message)
-    return {"msg": "ok"}
-
-
-@app.route("/command_send_image_byte", methods=["POST"])
-def handle_command_send_image_byte():
-    info(f"command = IDENTIFY_SEND_IMAGE_BYTE\n")
-    active("获取图片 ing...")
-    file_name = f"jennyGenerated/{int(time.time())}.png"
-    os.makedirs(os.path.dirname(file_name), exist_ok=True)
-    request_file = request.files["photo"]
-    request_file.save(file_name)
-    active(f"打开图片 {file_name}")
-    os.system(f"open {file_name}")
-    return {"msg": "ok"}
-
-
-@app.route("/command_send_video_byte", methods=["POST"])
-def handle_command_send_video_byte():
-    info(f"command = IDENTIFY_SEND_VIDEO_BYTE\n")
-    file_name = f"jennyGenerated/{int(time.time())}.mp4"
-    active("获取视频 ing...")
-    os.makedirs(os.path.dirname(file_name), exist_ok=True)
-    request_file = request.files["video"]
-    request_file.save(file_name)
-    active(f"打开视频 {file_name}")
-    os.system(f"open {file_name}")
-    return {"msg": "ok"}
-
-
-@app.route("/command_send_file_adb_pull", methods=["POST"])
-def handle_command_send_file_adb_pull():
-    info(f"command = IDENTIFY_SEND_FILE_ADB_PULL\n")
-    commandStr = request.form.get("content")
-    if not os.path.exists("jennyGenerated"):
-        os.makedirs("jennyGenerated")
-    commandStrArray = commandStr.split(" ")
-    adb_index = commandStrArray.index("adb")
-    commandStrArray.insert(adb_index + 1, "-s")
-    commandStrArray.insert(adb_index + 2, device_id)
-    commandStr = " ".join(commandStrArray)
-    active(f"使用adb pull 方式获取文件 {commandStr}")
-    subprocess.run(f"cd jennyGenerated && {commandStr}", shell=True)
-    return {"msg": "ok"}
+# 获取bytes
+def recv_exact_size(sock: socket, size=2048):
+    buffer = b""
+    while True:
+        part = sock.recv(size)
+        buffer += part
+        if b"<<<END" in part:
+            break
+    return buffer
 
 
 def get_connected_devices():
@@ -128,6 +118,31 @@ def select_device(devices):
     except ValueError:
         print("Invalid input. Please enter a number.")
         return select_device(devices)
+
+
+def start_server(host: str, port: int):
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+    try:
+        server_socket.bind((host, port))
+        server_socket.listen(5)
+        info(f"Listening on port {port}...")
+
+        while True:
+            client_socket, address = server_socket.accept()
+            info(f"Connection from {address} has been established.\n")
+            full_message = recv_exact_size(client_socket).replace(b"<<<END", b"")
+            full_message_with_line = [x for x in full_message.split(SPLIT) if x != b""]
+            dispatch_command(full_message_with_line[0], full_message_with_line[1])
+            print("\n")
+            client_socket.send("response: OK!".encode("utf-8"))
+            client_socket.close()
+    except KeyboardInterrupt:
+        error("Server is shutting down.")
+    finally:
+        server_socket.close()
+        info("Server socket closed.")
 
 
 def get_local_ip():
@@ -184,4 +199,4 @@ if __name__ == "__main__":
     os.system(
         f"adb -s {device_id} shell am start -n pers.zy.jenny/.JennyActivity -f 0x10000000 --es local_trans_host_name {host} --ei local_trans_port {port}"
     )
-    app.run(host, port, debug=True, use_reloader=False)
+    start_server(host, port)

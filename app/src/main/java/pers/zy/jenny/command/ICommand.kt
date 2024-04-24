@@ -1,69 +1,49 @@
 package pers.zy.jenny.command
 
-import android.util.Log
-import android.widget.Toast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import pers.zy.jenny.MyApp
+import okhttp3.OkHttpClient
+import okhttp3.RequestBody
+import okhttp3.logging.HttpLoggingInterceptor
+import pers.zy.jenny.net.IApi
+import pers.zy.jenny.net.Response
 import pers.zy.jenny.utils.SharedPreferenceUtil
-import java.io.BufferedInputStream
-import java.io.BufferedOutputStream
-import java.net.Socket
-
-val COMMAND_END = "<<<END".toByteArray()
-val SPLIT = ">>>\n<<<".toByteArray()
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 interface ICommand {
-  fun getCommandStr(): ByteArray
+  val commandIdentify: CommandIdentify
+  fun createRequestBody(): RequestBody
+
+  suspend fun createSuspendFun(): Response
 }
+
+val client = OkHttpClient.Builder()
+    .addInterceptor(HttpLoggingInterceptor().apply {
+      level = HttpLoggingInterceptor.Level.BODY
+    })
+    .writeTimeout(3, TimeUnit.MINUTES)
+    .readTimeout(3, TimeUnit.MINUTES)
+    .build()
+
+val API = Retrofit.Builder()
+    .baseUrl("http://${SharedPreferenceUtil.hostName}:${SharedPreferenceUtil.port}/")
+    .addConverterFactory(GsonConverterFactory.create())
+    .client(client)
+    .build()
+    .create(IApi::class.java)
 
 fun CoroutineScope.startCommand(
     command: ICommand,
-    updateTvStatus: suspend (String) -> Unit
+    updateTvStatus: (String) -> Unit
 ) {
   launch(Dispatchers.IO) {
-    val socket = try {
-      Socket(SharedPreferenceUtil.hostName, SharedPreferenceUtil.port)
+    try {
+      command.createSuspendFun()
     } catch (e: Exception) {
-      withContext(Dispatchers.Main) {
-        "exception: ${e.fillInStackTrace()}".let {
-          updateTvStatus(it)
-          Log.d("GFZY", it)
-          Toast.makeText(MyApp.INSTANCE, it, Toast.LENGTH_SHORT).show()
-        }
-      }
-      return@launch
+      updateTvStatus("error: $e")
     }
-
-    val bw = BufferedOutputStream(socket.getOutputStream())
-    val br = BufferedInputStream(socket.getInputStream())
-
-    val commandBytes = command.getCommandStr()
-
-    updateTvStatus("sending bytes... command size = ${commandBytes.size}")
-
-    val chunkSize = 2048
-    var offset = 0
-
-    while (offset < commandBytes.size) {
-      val length = minOf(chunkSize, commandBytes.size - offset)
-      updateTvStatus("sending bytes... progress = $offset / ${commandBytes.size} length = $length")
-      bw.write(commandBytes, offset, length)
-      bw.flush()
-      offset += length
-    }
-    updateTvStatus("sending is okay, waiting for response...")
-
-    br.bufferedReader().readText().let {
-      Log.d("GFZY", "response = $it")
-      updateTvStatus("response = $it")
-    }
-
-    bw.close()
-    br.close()
-    socket.close()
-    updateTvStatus("socket close")
   }
 }

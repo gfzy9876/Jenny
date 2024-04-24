@@ -4,10 +4,7 @@ import android.content.ContentResolver
 import android.net.Uri
 import android.util.Log
 import pers.zy.jenny.MyApp
-import java.io.BufferedInputStream
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
 
 /**
  * @author: zy
@@ -29,7 +26,14 @@ object FileUtil {
       success: suspend (file: File) -> Unit
   ) {
     val contentResolver: ContentResolver = MyApp.INSTANCE.contentResolver
-    val inputStream = contentResolver.openInputStream(uri)
+    saveUriToFile(contentResolver.openInputStream(uri), outputFile, success)
+  }
+
+  suspend fun saveUriToFile(
+      inputStream: InputStream?,
+      outputFile: File,
+      success: suspend (file: File) -> Unit
+  ) {
     inputStream?.use { input ->
       val outputStream = FileOutputStream(outputFile)
       outputStream.use { output ->

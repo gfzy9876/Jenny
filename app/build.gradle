@@ -72,4 +72,11 @@ dependencies {
 
     implementation libs.kotlinx.coroutines.android
 
+    implementation(platform(libs.okhttp.bom))
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.interceptor)
+    implementation libs.retrofit
+    implementation libs.converter.gson
+
+
 }
