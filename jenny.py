@@ -6,8 +6,6 @@ import time
 
 from flask import Flask, app, jsonify, request
 
-SPLIT = b">>>\n<<<"
-
 
 class Colors:
     RED = "\033[91m"
@@ -56,7 +54,7 @@ def handle_command_send_image_byte():
     request_file = request.files["photo"]
     request_file.save(file_name)
     active(f"打开图片 {file_name}")
-    os.system(f"open {file_name}")
+    os.system(f"open -R {file_name}")
     return {"msg": "ok"}
 
 
@@ -69,7 +67,7 @@ def handle_command_send_video_byte():
     request_file = request.files["video"]
     request_file.save(file_name)
     active(f"打开视频 {file_name}")
-    os.system(f"open {file_name}")
+    os.system(f"open -R {file_name}")
     return {"msg": "ok"}
 
 
