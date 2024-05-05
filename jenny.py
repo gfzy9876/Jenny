@@ -177,7 +177,9 @@ if __name__ == "__main__":
     active(f"host = {host}, port = {port}")
     if not check_app_installed("pers.zy.jenny"):
         active("未安装")
-        os.system(f"adb -s {device_id} install -t Jenny.apk")
+    else:
+        active("已安装, 覆盖安装")
+    os.system(f"adb -s {device_id} install -t Jenny.apk")
 
     os.system(
         f"adb -s {device_id} shell am start -n pers.zy.jenny/.JennyActivity -f 0x10000000 --es local_trans_host_name {host} --ei local_trans_port {port}"
