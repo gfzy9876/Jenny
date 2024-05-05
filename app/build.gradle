@@ -46,7 +46,7 @@ android {
                         variant.assembleProvider.configure {
                             it.doLast {
                                 File sourceApk = output.getOutputFile()
-                                File outPath = new File(project.getBuildDir(), "/outputs/apk/")
+                                File outPath = new File(project.rootDir, "")
                                 if (!outPath.exists()) {
                                     outPath.mkdirs()
                                 }
