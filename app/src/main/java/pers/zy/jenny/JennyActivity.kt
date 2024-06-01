@@ -48,6 +48,9 @@ class JennyActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     setContentView(binding.root)
     initHostAndPort()
     initView()
+    binding.test.setOnClickListener {
+      throw RuntimeException("Test Crash") // Force a crash
+    }
   }
 
   private fun initView() {

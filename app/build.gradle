@@ -5,6 +5,8 @@ import java.nio.file.StandardCopyOption
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
 }
 
 android {
@@ -78,5 +80,8 @@ dependencies {
     implementation libs.retrofit
     implementation libs.converter.gson
 
+    implementation platform(libs.google.firebase.bom)
+    implementation libs.firebase.crashlytics.ktx
+    implementation libs.firebase.analytics.ktx
 
 }

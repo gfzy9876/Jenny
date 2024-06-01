@@ -51,6 +51,11 @@
   </LinearLayout>
 
   <com.google.android.material.button.MaterialButton
+      android:id="@+id/test"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content" />
+
+  <com.google.android.material.button.MaterialButton
       android:id="@+id/btnImage"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
