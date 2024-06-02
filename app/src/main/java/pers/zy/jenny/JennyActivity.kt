@@ -48,9 +48,6 @@ class JennyActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     setContentView(binding.root)
     initHostAndPort()
     initView()
-    binding.test.setOnClickListener {
-      throw RuntimeException("Test Crash") // Force a crash
-    }
   }
 
   private fun initView() {
@@ -95,12 +92,12 @@ class JennyActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     }
   }
 
-  override fun onNewIntent(intent: Intent?) {
+  override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
-    Log.d("GFZY", "onNewIntent: ${intent?.extras}")
+    Log.d("GFZY", "onNewIntent: ${intent.extras}")
     setIntent(intent)
     initHostAndPort()
-    intent?.extras?.clear()
+    intent.extras?.clear()
   }
 
   private fun launchImageUri(uri: Uri) {
