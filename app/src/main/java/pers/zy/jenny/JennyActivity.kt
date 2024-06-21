@@ -9,8 +9,11 @@ import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import pers.zy.jenny.command.*
 import pers.zy.jenny.databinding.ActivityJennyBinding
 import pers.zy.jenny.utils.DeviceUtil
@@ -18,28 +21,22 @@ import pers.zy.jenny.utils.FileUtil
 import pers.zy.jenny.utils.SharedPreferenceUtil
 
 
-class JennyActivity : AppCompatActivity(), CoroutineScope by MainScope() {
+class JennyActivity : AppCompatActivity() {
 
   private lateinit var binding: ActivityJennyBinding
   private val logs = mutableListOf<String>()
   private val logAdapter = LogAdapter(logs)
 
   private val imageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) {
-    it?.let { uri ->
-      launchImageUri(uri)
-    }
+    it?.let { uri -> launchImageUri(uri) }
   }
 
   private val videoLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) {
-    it?.let { uri ->
-      launchVideoUri(uri)
-    }
+    it?.let { uri -> launchVideoUri(uri) }
   }
 
   private val fileLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) {
-    it?.let { uri ->
-      launchFileUri(uri)
-    }
+    it?.let { uri -> launchFileUri(uri) }
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,7 +68,7 @@ class JennyActivity : AppCompatActivity(), CoroutineScope by MainScope() {
       DeviceUtil.hideKeyboard(this@JennyActivity)
       binding.etString.clearFocus()
       binding.etString.text?.toString()?.takeIf { it.isNotBlank() }?.let { str ->
-        startCommand(StringCommand(str))
+        launchString(str)
       }
       binding.etString.setText("")
     }
@@ -100,32 +97,40 @@ class JennyActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     intent.extras?.clear()
   }
 
+  private fun launchString(content: String) {
+    lifecycleScope.launch {
+      startCommand(StringCommand(content))
+    }
+  }
+
   private fun launchImageUri(uri: Uri) {
-    launch(Dispatchers.IO) {
-      contentResolver.openInputStream(uri)?.let { inputStream ->
-        FileUtil.saveUriToFile(inputStream, FileUtil.createFile("create_${System.currentTimeMillis()}${FileUtil.getMimeTypeFromUri(uri)}")) {
-          startCommand(SendFileCommand(it, CommandIdentify.SEND_IMAGE_BYTE))
-        }
+    lifecycleScope.launch {
+      FileUtil.saveUriToFile(
+          uri,
+          FileUtil.createFile("create_${System.currentTimeMillis()}${FileUtil.getMimeTypeFromUri(uri)}")
+      )?.let {
+        startCommand(SendFileCommand(it, CommandIdentify.SEND_IMAGE_BYTE))
       }
     }
   }
 
   private fun launchVideoUri(uri: Uri) {
-    launch(Dispatchers.IO) {
-      contentResolver.openInputStream(uri)?.let { inputStream ->
-        FileUtil.saveUriToFile(inputStream, FileUtil.createFile("create_${System.currentTimeMillis()}${FileUtil.getMimeTypeFromUri(uri)}")) {
-          startCommand(SendFileCommand(it, CommandIdentify.SEND_VIDEO_BYTE))
-        }
+    lifecycleScope.launch {
+      FileUtil.saveUriToFile(
+          uri,
+          FileUtil.createFile("create_${System.currentTimeMillis()}${FileUtil.getMimeTypeFromUri(uri)}")
+      )?.let {
+        startCommand(SendFileCommand(it, CommandIdentify.SEND_VIDEO_BYTE))
       }
     }
   }
 
   private fun launchFileUri(uri: Uri) {
-    launch(Dispatchers.IO) {
+    lifecycleScope.launch {
       FileUtil.saveUriToFile(
           uri,
           FileUtil.createFile("create_${System.currentTimeMillis()}${FileUtil.getMimeTypeFromUri(uri)}")
-      ) {
+      )?.let {
         Log.d("GFZY", "okay ${it.absolutePath}")
         startCommand(SendFileADBCommand(it))
       }
@@ -139,7 +144,6 @@ class JennyActivity : AppCompatActivity(), CoroutineScope by MainScope() {
       SharedPreferenceUtil.saveString(MyApp.INSTANCE, EXTRA_HOST_NAME, it)
       binding.tvCurrentHost.text = "host = $it"
     }
-
     intent.getIntExtra(EXTRA_PORT, SharedPreferenceUtil.SP_PORT).takeIf { it > 0 }?.let {
       SharedPreferenceUtil.port = it
       SharedPreferenceUtil.saveInt(MyApp.INSTANCE, EXTRA_PORT, it)
@@ -147,29 +151,27 @@ class JennyActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     }
   }
 
-  private fun startCommand(command: ICommand) {
-    launch(Dispatchers.Main) {
-      clearLog()
-      withContext(Dispatchers.IO) {
-        try {
-          updateTvStatus("上传中")
-          val result = command.createSuspendFun()
-          updateTvStatus("上传完成 $result")
-        } catch (e: Exception) {
-          updateTvStatus("error: $e")
+  private suspend fun startCommand(command: ICommand) {
+    clearLog()
+    updateTvStatus("上传中")
+    try {
+      val result = withContext(Dispatchers.IO) {
+        command.createSuspendFun {
+          updateTvStatus("progress: ${it}%")
         }
       }
+      updateTvStatus("上传完成 $result")
+    } catch (e: Exception) {
+      updateTvStatus("error: $e")
     }
   }
 
   private fun updateTvStatus(msg: String) {
-    launch(Dispatchers.Main) {
-      Log.d("GFZY", "updateTvStatus: ${msg}")
-      logs.add(msg)
-      logs.indexOf(msg).also {
-        logAdapter.notifyItemInserted(it)
-        binding.rvLogs.scrollToPosition(it)
-      }
+    Log.d("GFZY", "updateTvStatus: ${msg}")
+    logs.add(msg)
+    logs.indexOf(msg).also {
+      logAdapter.notifyItemInserted(it)
+      binding.rvLogs.scrollToPosition(it)
     }
   }
 

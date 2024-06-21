@@ -3,8 +3,13 @@ package pers.zy.jenny.utils
 import android.content.ContentResolver
 import android.net.Uri
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import pers.zy.jenny.MyApp
-import java.io.*
+import java.io.BufferedInputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 /**
  * @author: zy
@@ -23,29 +28,19 @@ object FileUtil {
   suspend fun saveUriToFile(
       uri: Uri,
       outputFile: File,
-      success: suspend (file: File) -> Unit
-  ) {
-    val contentResolver: ContentResolver = MyApp.INSTANCE.contentResolver
-    saveUriToFile(contentResolver.openInputStream(uri), outputFile, success)
-  }
-
-  suspend fun saveUriToFile(
-      inputStream: InputStream?,
-      outputFile: File,
-      success: suspend (file: File) -> Unit
-  ) {
-    inputStream?.use { input ->
-      val outputStream = FileOutputStream(outputFile)
-      outputStream.use { output ->
-        val bufferedInputStream = BufferedInputStream(input)
-        val buffer = ByteArray(1024)
-        var bytesRead: Int
-        while (bufferedInputStream.read(buffer).also { bytesRead = it } != -1) {
-          output.write(buffer, 0, bytesRead)
-        }
-        output.flush()
+  ): File? {
+    return withContext(Dispatchers.IO) {
+      val input = MyApp.INSTANCE.contentResolver.openInputStream(uri)
+          ?: return@withContext null
+      val output = FileOutputStream(outputFile)
+      val bufferedInputStream = BufferedInputStream(input)
+      val buffer = ByteArray(1024)
+      var bytesRead: Int
+      while (bufferedInputStream.read(buffer).also { bytesRead = it } != -1) {
+        output.write(buffer, 0, bytesRead)
       }
-      success(outputFile)
+      output.flush()
+      return@withContext outputFile
     }
   }
 

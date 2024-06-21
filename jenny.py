@@ -34,7 +34,6 @@ def active(msg):
 
 
 app = Flask(__name__)
-app.config["MAX_CONTENT_LENGTH"] = 160 * 1024 * 1024
 
 
 @app.route("/command_string", methods=["POST"])
@@ -42,6 +41,12 @@ def handle_command_string():
     info(f"command = IDENTIFY_STRING\n")
     full_message = request.form.get("content")
     active(full_message)
+    file_name = f"jennyGenerated/{int(time.time())}.txt"
+    os.makedirs(os.path.dirname(file_name), exist_ok=True)
+    with open(file_name, "w") as f:
+        f.write(full_message)
+    active(f"打开文件 {file_name}")
+    os.system(f"open {file_name}")
     return {"msg": "ok"}
 
 
@@ -141,9 +146,6 @@ def get_local_ip():
     return "127.0.0.1"
 
 
-pkg = ""
-
-
 def check_app_installed(package_name: str):
     # 使用 adb shell pm list packages 命令获取设备上所有已安装应用程序的包名列表
     result = subprocess.run(
@@ -160,8 +162,6 @@ def check_app_installed(package_name: str):
 device_id = ""
 
 if __name__ == "__main__":
-    pkg = sys.argv[1]
-
     devices = get_connected_devices()
     if devices:
         device_id = select_device(devices)
@@ -173,8 +173,9 @@ if __name__ == "__main__":
     local_ip = get_local_ip()
     host = input(f"请输入ip地址(默认为本机IPv4地址: {local_ip}): ") or local_ip
     port = int(input("请输入端口号(默认使用40006): ") or 40006)
+    max_content_length = int(input("请输入传输最大内容长度, 单位MB(默认500): ") or 500)
     os.system("cat logo")
-    active(f"host = {host}, port = {port}")
+    active(f"host = {host}, port = {port}, 最大内容长度 = {max_content_length} MB)")
     if not check_app_installed("pers.zy.jenny"):
         active("未安装")
     else:
@@ -184,4 +185,6 @@ if __name__ == "__main__":
     os.system(
         f"adb -s {device_id} shell am start -n pers.zy.jenny/.JennyActivity -f 0x10000000 --es local_trans_host_name {host} --ei local_trans_port {port}"
     )
+
+    app.config["MAX_CONTENT_LENGTH"] = max_content_length * 1024 * 1024
     app.run(host, port, debug=True, use_reloader=False)

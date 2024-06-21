@@ -1,7 +1,6 @@
 package pers.zy.jenny.command
 
 import okhttp3.OkHttpClient
-import okhttp3.RequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import pers.zy.jenny.net.IApi
 import pers.zy.jenny.net.Response
@@ -12,14 +11,13 @@ import java.util.concurrent.TimeUnit
 
 interface ICommand {
   val commandIdentify: CommandIdentify
-  fun createRequestBody(): RequestBody
 
-  suspend fun createSuspendFun(): Response
+  suspend fun createSuspendFun(progress: (Float) -> Unit): Response
 }
 
 val client = OkHttpClient.Builder()
     .addInterceptor(HttpLoggingInterceptor().apply {
-      level = HttpLoggingInterceptor.Level.BODY
+      level = HttpLoggingInterceptor.Level.BASIC
     })
     .writeTimeout(3, TimeUnit.MINUTES)
     .readTimeout(3, TimeUnit.MINUTES)
