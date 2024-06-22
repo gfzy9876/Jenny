@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "59225998132",
+    "project_id": "jenny-89c67",
+    "storage_bucket": "jenny-89c67.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:59225998132:android:b6a482a189725d91519b61",
+        "android_client_info": {
+          "package_name": "pers.zy.jenny"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEsM3Drw30AnjcyP9FT8Cm1aKuMxahc0I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

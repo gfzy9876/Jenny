@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp"
+    tools:context=".JennyActivity">
+
+  <TextView
+      android:id="@+id/tvCurrentHost"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
+
+  <TextView
+      android:id="@+id/tvCurrentPort"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/tvCurrentHost" />
+
+  <LinearLayout
+      android:id="@+id/llString"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center_vertical"
+      android:orientation="horizontal"
+      android:paddingVertical="10dp"
+      app:layout_constraintBottom_toTopOf="@+id/btnImage"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/tvCurrentPort">
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/etString"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:autofillHints="输入要粘贴的字符串"
+        android:maxLines="8" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnString"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:text="发送字符串" />
+
+  </LinearLayout>
+
+  <com.google.android.material.button.MaterialButton
+      android:id="@+id/btnImage"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="5dp"
+      android:text="发送图片(socket)"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/llString" />
+
+  <com.google.android.material.button.MaterialButton
+      android:id="@+id/btnVideo"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="5dp"
+      android:text="发送视频(socket)"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/btnImage" />
+
+  <com.google.android.material.button.MaterialButton
+      android:id="@+id/btnFileADB"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="5dp"
+      android:text="发送文件(adb方式,插线推荐优先使用)"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/btnVideo" />
+
+  <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/rvLogs"
+      android:layout_width="0dp"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="40dp"
+      app:layout_constrainedHeight="true"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@id/btnFileADB"
+      app:layout_constraintVertical_bias="1"
+      tools:itemCount="200"
+      tools:listitem="@layout/item_log" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

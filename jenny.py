@@ -4,7 +4,8 @@ import subprocess
 import sys
 import time
 
-from flask import Flask, app, jsonify, request
+from flask import Flask, Response, app, jsonify, request, send_from_directory
+from flask_cors import CORS
 
 
 class Colors:
@@ -33,7 +34,51 @@ def active(msg):
     print(Colors.GREEN + msg + Colors.RESET)
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="web/build")
+CORS(app)
+
+imagePath = ""
+
+
+build_dir = "web/build"
+
+
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def serve(path):
+    if path != "":
+        print("path = " + path)
+        return send_from_directory(build_dir, path)
+    else:
+        return send_from_directory(build_dir, "index.html")
+
+
+# @app.route("/static/<path:path>")
+# def serve(path):
+#     print("path = " + path)
+#     return send_from_directory("web/build", path)
+
+
+@app.route("/jennyGenerated/<path:filename>")
+def show_file(filename):
+    return send_from_directory("jennyGenerated", filename)
+
+
+@app.route("/stream")
+def stream():
+    print("ping")
+
+    def event_stream():
+        while True:
+            data = {}
+            global imagePath
+            if imagePath != "":
+                data["imagePath"] = imagePath
+                yield f"data: {json.dumps(data)}\n\n"
+                imagePath = ""
+            time.sleep(1)  # 假设每秒检查一次
+
+    return Response(event_stream(), mimetype="text/event-stream")
 
 
 @app.route("/command_string", methods=["POST"])
@@ -60,6 +105,8 @@ def handle_command_send_image_byte():
     request_file.save(file_name)
     active(f"打开图片 {file_name}")
     os.system(f"open -R {file_name}")
+    global imagePath
+    imagePath = file_name
     return {"msg": "ok"}
 
 
@@ -89,7 +136,19 @@ def handle_command_send_file_adb_pull():
     commandStr = " ".join(commandStrArray)
     active(f"使用adb pull 方式获取文件 {commandStr}")
     subprocess.run(f"cd jennyGenerated && {commandStr}", shell=True)
+    if commandStr.find(".png") != -1 or commandStr.find(".jpg") != -1:
+        fileName = intercept_after(commandStr, "open -R ./")
+        if fileName != "":
+            global imagePath
+            imagePath = "jennyGenerated/" + fileName
     return {"msg": "ok"}
+
+
+def intercept_after(string, start_substring):
+    index = string.find(start_substring)
+    if index != -1:
+        return string[index + len(start_substring) :]
+    return ""
 
 
 def get_connected_devices():

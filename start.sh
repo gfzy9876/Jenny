@@ -9,6 +9,13 @@ handle_pip_error() {
   else
     echo "Flask is already installed."
   fi
+
+  if ! pip show flask_cors >/dev/null; then
+    echo "Flask-Cors is not installed. Installing Flask-Cors..."
+    pip install flask_cors
+  else
+    echo "Flask-Cors is already installed."
+  fi
 }
 
 trap 'handle_pip_error' ERR
@@ -17,6 +24,13 @@ if ! pip3 show flask >/dev/null; then
   pip3 install flask
 else
   echo "Flask is already installed."
+fi
+
+if ! pip3 show flask_cors >/dev/null; then
+  echo "Flask-Cors is not installed. Installing Flask-Cors..."
+  pip3 install flask_cors
+else
+  echo "Flask-Cors is already installed."
 fi
 
 trap 'handle_error' ERR
