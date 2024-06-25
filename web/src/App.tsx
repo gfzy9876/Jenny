@@ -4,7 +4,7 @@ import "./App.css";
 function App() {
   const [imgPath, setImgPath] = useState("");
   useEffect(() => {
-    let eventSource = new EventSource("http://192.168.1.3:40006/stream");
+    let eventSource = new EventSource("/stream");
     eventSource.onmessage = (event) => {
       let data = JSON.parse(event.data);
       let imagePath = "../" + data.imagePath;
