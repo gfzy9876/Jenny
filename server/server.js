@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const { exec, execSync } = require("child_process");
 const { info, active } = require("./log");
-const { selectFile } = require("./tools");
+const { selectFile, getDeviceId } = require("./tools");
 
 const server = express();
 const upload = multer({ dest: "jennyGenerated/" });
@@ -17,6 +17,9 @@ server.use(bodyParser.urlencoded({ extended: true }));
 
 server.get("/send_file_to_phone", (req, res) => {
   selectFile((filePath) => {
+    deviceId = getDeviceId();
+    active(`run adb -s ${deviceId} push ${filePath} /sdcard/Download`);
+    execSync(`adb -s ${deviceId} push ${filePath} /sdcard/Download`);
     res.send({
       msg: "ok",
       filePath: filePath,

@@ -31,9 +31,12 @@ function getConnectedDevices() {
   return devices;
 }
 
+let deviceId = "";
+
 function selectDevice(devices) {
   return new Promise((resolve) => {
     if (devices.length === 1) {
+      deviceId = devices[0].deviceId;
       resolve(devices[0].deviceId);
     } else {
       console.log("Connected devices:");
@@ -56,6 +59,7 @@ function selectDevice(devices) {
           const selectedDevice = devices[parseInt(choice) - 1];
           rl.close();
           if (selectedDevice) {
+            deviceId = selectedDevice.deviceId;
             resolve(selectedDevice.deviceId);
           } else {
             console.log("Invalid choice.");
@@ -114,7 +118,12 @@ function selectFile(call) {
   });
 }
 
+function getDeviceId() {
+  return deviceId;
+}
+
 module.exports = {
+  getDeviceId,
   getConnectedDevices,
   selectDevice,
   getLocalIp,
