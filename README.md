@@ -22,6 +22,17 @@ host无序修改，port默认端口为`40006`，如默认端口`40006`被占用�
 选择完图片之后即可上传到电脑端并打开文件：
 ![image](https://github.com/gfzy9876/Jenny/assets/34124544/09ab25b3-6d75-42fb-b3c0-1cb107055cab)
 
+# 上传电脑文件到手机(adb方式)
+点击`上传电脑文件到手机`
+![image](https://github.com/gfzy9876/Jenny/assets/34124544/3b50ba34-3dc3-4178-9ae3-842193297219)
+选择文件：
+![image](https://github.com/gfzy9876/Jenny/assets/34124544/cea3c741-3efb-4c7f-a67c-2edaf363ae29)
+选择完成后，通过adb push方式上传到手机sdcard/Download目录下，并打开Download目录
+![image](https://github.com/gfzy9876/Jenny/assets/34124544/802d77ce-5936-427e-9b4d-1f02eb335a5e)
+
+
 # 从 [1.0.6](https://github.com/gfzy9876/Jenny/releases/tag/v1.0.6) 开始，实现方式由python改为nodejs实现，需要同学们自己添加node环境
-# node环境安装，（电脑已有忽略）
+## node环境安装，（电脑已有忽略）
 node官网：https://nodejs.org/en/
+
+
