@@ -9,10 +9,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "applescript": "^1.0.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "inquirer": "^9.2.23",
+    "keypress": "^0.2.1",
     "multer": "^1.4.5-lts.1",
     "open": "^10.1.0"
   }

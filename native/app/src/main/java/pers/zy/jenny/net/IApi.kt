@@ -23,4 +23,7 @@ interface IApi {
   @POST("command_send_video_byte")
   @Multipart
   suspend fun commandSendVideoByte(@Part file: MultipartBody.Part): Response
+
+  @GET("send_file_to_phone")
+  suspend fun sendFileToPhone(): SendFileToPhoneResponse
 }

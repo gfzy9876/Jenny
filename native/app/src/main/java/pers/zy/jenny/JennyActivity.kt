@@ -1,11 +1,13 @@
 package pers.zy.jenny
 
+import android.app.DownloadManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -81,6 +83,17 @@ class JennyActivity : AppCompatActivity() {
     }
     binding.btnFileADB.setOnClickListener {
       fileLauncher.launch("*/*")
+    }
+    binding.btnSendFileToPhone.setOnClickListener {
+      lifecycleScope.launch {
+        try {
+          val filePath = API.sendFileToPhone().filePath
+          Toast.makeText(this@JennyActivity, "文件获取完成，来源：$filePath", Toast.LENGTH_LONG).show()
+          startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+        } catch (e: Exception) {
+          Toast.makeText(this@JennyActivity, "文件获取失败", Toast.LENGTH_LONG).show()
+        }
+      }
     }
     binding.rvLogs.let {
       it.layoutManager = LinearLayoutManager(this)

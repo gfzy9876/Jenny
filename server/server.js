@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const { exec, execSync } = require("child_process");
 const { info, active } = require("./log");
+const { selectFile } = require("./tools");
 
 const server = express();
 const upload = multer({ dest: "jennyGenerated/" });
@@ -13,6 +14,15 @@ let imagePath = "";
 
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: true }));
+
+server.get("/send_file_to_phone", (req, res) => {
+  selectFile((filePath) => {
+    res.send({
+      msg: "ok",
+      filePath: filePath,
+    });
+  });
+});
 
 server.post("/command_string", (req, res) => {
   info("command = IDENTIFY_STRING");

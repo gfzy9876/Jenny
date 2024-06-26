@@ -1,9 +1,15 @@
 const { execSync } = require("child_process");
 const readline = require("readline");
 const fs = require("fs");
-const { active, info } = require("./log");
+const { active, info, error } = require("./log");
 const app = require("./server");
-const { getConnectedDevices, selectDevice, getLocalIp } = require("./tools");
+const {
+  getConnectedDevices,
+  selectDevice,
+  getLocalIp,
+  keyboardListen,
+  selectFile,
+} = require("./tools");
 
 let deviceId = "";
 
@@ -65,33 +71,11 @@ function launch(host, port) {
     info(`Server running at http://${host}:${port}/`);
   });
 
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  rl.on("line", (input) => {
-    if (input.trim() === "f") {
-      info("点击了f，选择文件:");
-      // 使用动态导入加载inquirer
-      import("inquirer")
-        .then((inquirer) => {
-          inquirer
-            .prompt([
-              {
-                type: "input",
-                name: "filePath",
-                message: "请输入文件路径:",
-              },
-            ])
-            .then((answers) => {
-              console.log("你输入的文件路径是:", answers.filePath);
-              // 这里可以添加更多的代码来处理文件
-            });
-        })
-        .catch((error) => {
-          console.error("导入失败:", error);
-        });
-    }
+  active("Press 'f' to trigger the event.");
+  keyboardListen("f", () => {
+    selectFile((filePath) => {
+      active(`run adb -s ${deviceId} push ${filePath} /sdcard/Download`);
+      execSync(`adb -s ${deviceId} push ${filePath} /sdcard/Download`);
+    });
   });
 }
