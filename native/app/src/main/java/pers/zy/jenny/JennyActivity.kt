@@ -1,5 +1,6 @@
 package pers.zy.jenny
 
+import android.annotation.SuppressLint
 import android.app.DownloadManager
 import android.content.Intent
 import android.net.Uri
@@ -21,6 +22,7 @@ import pers.zy.jenny.databinding.ActivityJennyBinding
 import pers.zy.jenny.utils.DeviceUtil
 import pers.zy.jenny.utils.FileUtil
 import pers.zy.jenny.utils.SharedPreferenceUtil
+import pers.zy.jenny.utils.Track
 
 
 class JennyActivity : AppCompatActivity() {
@@ -49,6 +51,7 @@ class JennyActivity : AppCompatActivity() {
     initView()
   }
 
+  @SuppressLint("SetTextI18n")
   private fun initView() {
     ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
       val systemBars = insets.systemWindowInsets
@@ -67,6 +70,7 @@ class JennyActivity : AppCompatActivity() {
     })
 
     binding.btnString.setOnClickListener {
+      Track.firebaseLog("selectType" to "string")
       DeviceUtil.hideKeyboard(this@JennyActivity)
       binding.etString.clearFocus()
       binding.etString.text?.toString()?.takeIf { it.isNotBlank() }?.let { str ->
@@ -76,15 +80,19 @@ class JennyActivity : AppCompatActivity() {
     }
 
     binding.btnImage.setOnClickListener {
+      Track.firebaseLog("selectType" to "image")
       imageLauncher.launch("image/*")
     }
     binding.btnVideo.setOnClickListener {
+      Track.firebaseLog("selectType" to "video")
       videoLauncher.launch("video/*")
     }
     binding.btnFileADB.setOnClickListener {
+      Track.firebaseLog("selectType" to "fileAdb")
       fileLauncher.launch("*/*")
     }
     binding.btnSendFileToPhone.setOnClickListener {
+      Track.firebaseLog("selectType" to "sendFileToPhone")
       lifecycleScope.launch {
         try {
           val filePath = API.sendFileToPhone().filePath
