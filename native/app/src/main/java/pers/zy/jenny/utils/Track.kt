@@ -2,6 +2,7 @@ package pers.zy.jenny.utils
 
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import pers.zy.jenny.MyApp
 
 /**
@@ -16,6 +17,10 @@ object Track {
         param(it.first, it.second)
       }
     }
+  }
+
+  fun recordError(t: Throwable) {
+    FirebaseCrashlytics.getInstance().recordException(t)
   }
 
 }

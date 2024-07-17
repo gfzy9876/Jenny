@@ -23,6 +23,7 @@ import pers.zy.jenny.utils.DeviceUtil
 import pers.zy.jenny.utils.FileUtil
 import pers.zy.jenny.utils.SharedPreferenceUtil
 import pers.zy.jenny.utils.Track
+import retrofit2.HttpException
 
 
 class JennyActivity : AppCompatActivity() {
@@ -183,7 +184,13 @@ class JennyActivity : AppCompatActivity() {
       }
       updateTvStatus("上传完成 $result")
     } catch (e: Exception) {
-      updateTvStatus("error: $e")
+      (e as? HttpException)?.response()?.errorBody()?.string()?.let {
+        updateTvStatus("error: $it")
+        Track.recordError(RuntimeException(it, e))
+        withContext(Dispatchers.Main) {
+          Toast.makeText(this@JennyActivity, "error: ${it}", Toast.LENGTH_SHORT).show()
+        }
+      }
     }
   }
 
