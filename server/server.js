@@ -19,8 +19,8 @@ server.get("/send_file_to_phone", (req, res) => {
   selectFile((filePath) => {
     try {
       let deviceId = getDeviceId();
-      active(`run adb -s ${deviceId} push ${filePath} /sdcard/Download`);
-      execSync(`adb -s ${deviceId} push ${filePath} /sdcard/Download`);
+      active(`run adb -s ${deviceId} push ${filePath} /sdcard/DCIM`);
+      execSync(`adb -s ${deviceId} push ${filePath} /sdcard/DCIM`);
       res.send({
         msg: "ok",
         filePath: filePath,
